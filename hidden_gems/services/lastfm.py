@@ -3,13 +3,22 @@ import os
 import pylast
 from dotenv import load_dotenv
 
-from hidden_gems.models.artist import Artist
+try:
+    import streamlit as st
 
-load_dotenv()
+    api_key = st.secrets.get("LASTFM_API_KEY")
+    api_secret = st.secrets.get("LASTFM_SHARED_SECRET")
+
+except Exception:
+    load_dotenv()
+
+    api_key = os.getenv("LASTFM_API_KEY")
+    api_secret = os.getenv("LASTFM_SHARED_SECRET")
+
 
 network = pylast.LastFMNetwork(
-    api_key=os.getenv("LASTFM_API_KEY"),
-    api_secret=os.getenv("LASTFM_SHARED_SECRET"),
+    api_key=api_key,
+    api_secret=api_secret,
 )
 
 
