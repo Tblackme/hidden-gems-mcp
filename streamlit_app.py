@@ -8,28 +8,76 @@ st.set_page_config(
     layout="wide",
 )
 
+# -----------------------------
+# Sidebar
+# -----------------------------
+
+with st.sidebar:
+
+    st.title("🎛️ Discovery Filters")
+
+    limit = st.slider(
+        "Artists per Seed",
+        5,
+        50,
+        20,
+    )
+
+    max_listeners = st.slider(
+        "Maximum Listeners",
+        1000,
+        500000,
+        50000,
+        step=1000,
+    )
+
+    min_score = st.slider(
+        "Minimum Hidden Gem Score",
+        0,
+        100,
+        50,
+    )
+
+    min_similarity = st.slider(
+        "Minimum Similarity",
+        0.0,
+        1.0,
+        0.40,
+        step=0.05,
+    )
+
+    min_matches = st.slider(
+        "Minimum Seed Matches",
+        1,
+        5,
+        1,
+    )
+
+    sort_by = st.selectbox(
+        "Sort By",
+        [
+            "Hidden Gem Score",
+            "Similarity",
+            "Listeners",
+            "Seed Matches",
+        ],
+    )
+
+# -----------------------------
+# Main Page
+# -----------------------------
+
 st.title("🎵 Hidden Gems AI")
 st.caption("Discover underrated artists with AI-powered recommendations.")
 
 st.divider()
 
-st.header("Seed Artists")
-
-default_text = """Josiah Queen
-Benjamin William Hastings
-Chris Renzema"""
-
 seed_text = st.text_area(
     "Enter one artist per line",
-    value=default_text,
+    value="""Josiah Queen
+Benjamin William Hastings
+Chris Renzema""",
     height=150,
-)
-
-limit = st.slider(
-    "Artists to search per seed",
-    min_value=5,
-    max_value=50,
-    value=20,
 )
 
 if st.button("🔍 Discover Hidden Gems", type="primary"):
@@ -41,9 +89,39 @@ if st.button("🔍 Discover Hidden Gems", type="primary"):
     ]
 
     with st.spinner("Searching Last.fm..."):
+
         artists = discover(seed_artists, limit=limit)
 
-    st.success(f"Found {len(artists)} recommendations!")
+    # -----------------------------
+    # Filters
+    # -----------------------------
+
+    artists = [
+        artist
+        for artist in artists
+        if artist.listeners <= max_listeners
+        and artist.score >= min_score
+        and artist.similarity >= min_similarity
+        and artist.matches >= min_matches
+    ]
+
+    # -----------------------------
+    # Sorting
+    # -----------------------------
+
+    if sort_by == "Hidden Gem Score":
+        artists.sort(key=lambda a: a.score, reverse=True)
+
+    elif sort_by == "Similarity":
+        artists.sort(key=lambda a: a.similarity, reverse=True)
+
+    elif sort_by == "Listeners":
+        artists.sort(key=lambda a: a.listeners)
+
+    elif sort_by == "Seed Matches":
+        artists.sort(key=lambda a: a.matches, reverse=True)
+
+    st.success(f"Found {len(artists)} artists")
 
     st.divider()
 
@@ -51,15 +129,15 @@ if st.button("🔍 Discover Hidden Gems", type="primary"):
 
         with st.container(border=True):
 
-            col1, col2, col3 = st.columns([5, 2, 2])
+            c1, c2, c3 = st.columns([5, 2, 2])
 
-            with col1:
+            with c1:
                 st.subheader(artist.name)
 
-            with col2:
+            with c2:
                 st.metric("⭐ Score", f"{artist.score:.1f}")
 
-            with col3:
+            with c3:
                 st.metric("👥 Listeners", f"{artist.listeners:,}")
 
             st.progress(min(artist.score / 100, 1.0))
@@ -68,4 +146,4 @@ if st.button("🔍 Discover Hidden Gems", type="primary"):
             st.write(f"**Matched Seeds:** {artist.matches}")
 
 st.divider()
-st.caption("Hidden Gems MCP • Powered by Last.fm")
+st.caption("Hidden Gems AI • Powered by Last.fm")
