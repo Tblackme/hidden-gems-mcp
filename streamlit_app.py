@@ -1,15 +1,5 @@
 import streamlit as st
 
-st.write("Secrets loaded:")
-
-st.write("LASTFM_API_KEY:", "✅" if "LASTFM_API_KEY" in st.secrets else "❌")
-st.write("LASTFM_SHARED_SECRET:", "✅" if "LASTFM_SHARED_SECRET" in st.secrets else "❌")
-
-st.write("Secrets loaded:")
-
-st.write("LASTFM_API_KEY:", "✅" if "LASTFM_API_KEY" in st.secrets else "❌")
-st.write("LASTFM_SHARED_SECRET:", "✅" if "LASTFM_SHARED_SECRET" in st.secrets else "❌")
-
 from hidden_gems.services.multi_seed import discover
 
 st.set_page_config(
