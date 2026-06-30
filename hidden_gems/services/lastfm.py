@@ -3,6 +3,8 @@ import os
 import pylast
 from dotenv import load_dotenv
 
+from hidden_gems.models.artist import Artist
+
 try:
     import streamlit as st
 
